@@ -93,7 +93,7 @@ function go($url)
 
 function clean($src)
 {
-	$a		= explode("<form", $src);
+	$a = explode("<form", $src);
 	if (count($a)>1) {
 		$r = array();
 		foreach ($a as $val) {
