@@ -10,7 +10,7 @@ use PHPFB\Teacrypt;
 use PHPFB\Hub\Singleton;
 
 /**
- * @author	Ammar Faizi <ammarfaizi2@gmail.com>
+ * @author Ammar Faizi <ammarfaizi2@gmail.com>
  * @version 0.0.1
  * @package PHPFB
  */
