@@ -17,6 +17,7 @@ use PHPFB\Hub\Singleton;
 
 class PHPFBHandler
 {
+	const APPKEY	= "PHPFB";
 	const VERSION 	= "0.0.1";
 	const FBURL		= "https://m.facebook.com";
 	const USERAGENT = "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:46.0) Gecko/20100101 Firefox/46.0";
@@ -45,6 +46,16 @@ class PHPFBHandler
 	 * @var array
 	 */
 	private $header_response = array();
+
+	/**
+	 * @var array
+	 */
+	private $send_header = array();
+
+	/**
+	 * @var string
+	 */
+	private $output;
 
 	/**
 	 * Constructor
@@ -188,8 +199,8 @@ class PHPFBHandler
 		$this->curl_info = curl_getinfo($ch);
 		$out = $this->shift_header($out);
 		$err = curl_error($ch) and $out = curl_errno($ch).": ".$err."\n";
+		curl_close($ch);
 		$this->encrypt_cookies();
-		die;
 		return $out;
 	}
 
@@ -213,7 +224,11 @@ class PHPFBHandler
 	 */
 	private function decrypt_cookies()
 	{
-
+		$cookie_data = file_get_contents($this->user_cookies);
+		if (!empty(trim($cookie_data))) {
+			file_put_contents($this->user_cookies, Teacrypt::decrypt($cookie_data, self::APPKEY));
+		}
+		$cookie_data = file_get_contents($this->user_cookies);
 	}
 
 	/**
@@ -221,6 +236,9 @@ class PHPFBHandler
 	 */
 	private function encrypt_cookies()
 	{
-
+		$cookie_data = file_get_contents($this->user_cookies);
+		if (!empty(trim($cookie_data))) {
+			file_put_contents($this->user_cookies, Teacrypt::encrypt($cookie_data, self::APPKEY));
+		}
 	}
 }
