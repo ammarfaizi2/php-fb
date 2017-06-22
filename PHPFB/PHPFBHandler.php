@@ -254,7 +254,9 @@ class PHPFBHandler
 		$this->header_response = array();
 		foreach (explode("\n", substr($out, 0, $this->curl_info['header_size'])) as $val) {
 			$b = explode(":", $val, 2);
-			$this->header_response[strtolower(trim($b[0]))] = $b[1];
+			if (isset($b[1])) {
+				$this->header_response[strtolower(trim($b[0]))] = $b[1];
+			}
 		}
 		return substr($out, $this->curl_info['header_size']);
 	}
