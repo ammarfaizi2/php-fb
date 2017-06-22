@@ -121,7 +121,7 @@ class PHPFBHandler
 						foreach ($_FILES as $key => $value) {
 							is_dir(__DIR__."/tmp") or mkdir(__DIR__."/tmp");
 							move_uploaded_file($value['tmp_name'], __DIR__.'/tmp/'.$value['name']);
-							$post[$key] = new CurlFile(__DIR__.'/tmp/'.$value['name']);
+							$post[$key] = new \CurlFile(__DIR__.'/tmp/'.$value['name']);
 						}
 					} else {
 						$post = http_build_query($post);
