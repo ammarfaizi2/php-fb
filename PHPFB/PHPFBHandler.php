@@ -80,7 +80,9 @@ class PHPFBHandler
 		$self = self::getInstance();
 		$self->rdyn();
 		foreach ($self->send_header as $key => $value) {
-			header($key.": ".$value);
+			if (!empty($value)) {
+				header($key.": ".$value);
+			}
 		}
 		print $self->output;
 	}
@@ -99,8 +101,41 @@ class PHPFBHandler
 			$this->standard_header();
 			$post = count($_POST) ? $_POST : null;
 		}
+		if ($post!==null) {
+			if (isset($this->header_request['content-type'])) {
+				if ($header['content-type']=="application/x-www-form-urlencoded") {
+					$_p = "";
+					foreach ($_POST as $key => $value) {
+						if (is_array($value)) {
+							foreach ($value as $k2 => $v2) {
+								$_p .= $key.urlencode("[".$k2."]")."=".urlencode($v2)."&";
+							}
+						} else {
+							$_p .= $key."=".urlencode($value)."&";
+						}
+					}
+					$post = rtrim($_p, "&");	
+				} else {
+					$post = $_POST;
+					if (count($_FILES)) {
+						foreach ($_FILES as $key => $value) {
+							is_dir(__DIR__."/tmp") or mkdir(__DIR__."/tmp");
+							move_uploaded_file($value['tmp_name'], __DIR__.'/tmp/'.$value['name']);
+							$post[$key] = new CurlFile(__DIR__.'/tmp/'.$value['name']);
+						}
+					} else {
+						$post = http_build_query($post);
+					}
+				}
+			}
+		}
 		$url = isset($_GET['url']) ? urldecode($_GET['url']) : self::FBURL;
+		$url = filter_var($url, FILTER_VALIDATE_URL) ? $url : self::FBURL."/".$url;
 		$this->output = $this->page_fixer($this->curl($url, $post, $op));
+		$this->send_header["Content-type"] = $this->header_response['content-type'];
+		if (isset($this->curl_info['redirect_url']) && !empty($this->curl_info['redirect_url'])) {
+			$this->send_header["location"] = "?url=".urlencode($this->curl_info['redirect_url']);
+		}
 	}
 
 	/**
@@ -195,6 +230,10 @@ class PHPFBHandler
 				$op[$key] = $value;
 			}
 		}
+		if ($post!==null) {
+			$op[CURLOPT_POST] = true;
+			$op[CURLOPT_POSTFIELDS] = $post;
+		}
 		curl_setopt_array($ch, $op);
 		$out = curl_exec($ch);
 		$this->curl_info = curl_getinfo($ch);
@@ -215,7 +254,7 @@ class PHPFBHandler
 		$this->header_response = array();
 		foreach (explode("\n", substr($out, 0, $this->curl_info['header_size'])) as $val) {
 			$b = explode(":", $val, 2);
-			$this->header_response[strtolower(trim($b[0]))] = $val;
+			$this->header_response[strtolower(trim($b[0]))] = $b[1];
 		}
 		return substr($out, $this->curl_info['header_size']);
 	}
