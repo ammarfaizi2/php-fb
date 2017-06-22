@@ -2,6 +2,10 @@
 
 namespace PHPFB;
 
+defined("data") or die("data not defined !");
+defined("fb_data") or die("fb_data not defined !");
+
+
 use PHPFB\Teacrypt;
 use PHPFB\Hub\Singleton;
 
@@ -36,17 +40,18 @@ class PHPFBHandler
 	 */
 	public function __construct()
 	{
+
 	}
 
 	public static function run()
 	{
-		self::getInstance();
+		print self::getInstance()->curl("https://m.facebook.com");
 	}
 
 	private function curl($url, $post = null, $ops = null)
 	{
 		$this->decrypt_cookies();
-		$ch = curl_init();
+		$ch = curl_init($url);
 		$op = array(
 				CURLOPT_RETURNTRANSFER	=> true,
 				CURLOPT_SSL_VERIFYPEER	=> false,
@@ -63,8 +68,18 @@ class PHPFBHandler
 		curl_setopt_array($ch, $op);
 		$out = curl_exec($ch);
 		$this->curl_info = curl_getinfo($ch);
-		$err = curl_error($ch) and $out = curl_errno($ch).": ".$err;
+		$err = curl_error($ch) and $out = curl_errno($ch).": ".$err."\n";
 		$this->encrypt_cookies();
 		return $out;
+	}
+
+	private function decrypt_cookies()
+	{
+
+	}
+
+	private function encrypt_cookies()
+	{
+
 	}
 }
