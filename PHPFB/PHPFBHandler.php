@@ -21,7 +21,6 @@ class PHPFBHandler
 	const VERSION	= "0.0.1";
 	const FBURL		= "https://m.facebook.com";
 	const USERAGENT = "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:46.0) Gecko/20100101 Firefox/46.0";
-
 	/**
 	 * Use Singleton trait.
 	 */
@@ -103,7 +102,7 @@ class PHPFBHandler
 		}
 		if ($post!==null) {
 			if (isset($this->header_request['content-type'])) {
-				if ($header['content-type']=="application/x-www-form-urlencoded") {
+				if ($this->header_request['content-type']=="application/x-www-form-urlencoded") {
 					$_p = "";
 					foreach ($_POST as $key => $value) {
 						if (is_array($value)) {
