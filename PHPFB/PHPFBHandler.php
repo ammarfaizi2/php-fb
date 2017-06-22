@@ -82,7 +82,7 @@ class PHPFBHandler
 		foreach ($self->send_header as $key => $value) {
 			header($key.": ".$value);
 		}
-		printf($self->output);
+		print $self->output;
 	}
 
 	/**
@@ -100,7 +100,7 @@ class PHPFBHandler
 			$post = count($_POST) ? $_POST : null;
 		}
 		$url = isset($_GET['url']) ? urldecode($_GET['url']) : self::FBURL;
-		$a = $this->curl($url, $post, $op);
+		$this->output = $this->page_fixer($this->curl($url, $post, $op));
 	}
 
 	/**
@@ -168,6 +168,7 @@ class PHPFBHandler
 				}
 			}
 		}
+		return $src;
 	}
 
 	/**
